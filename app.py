@@ -31,8 +31,8 @@ def after_request(response):
 
 
 UPLOAD_FOLDER = 'uploads'
-MERGED_FOLDER = r'D:\Py_PDF\merged'
-DOWNLOADS_FOLDER = r'D:\Py_PDF\downloads'
+MERGED_FOLDER = 'merged'
+DOWNLOADS_FOLDER = 'downloads'
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(MERGED_FOLDER, exist_ok=True)
@@ -229,39 +229,3 @@ def cleanup_old_files(folder_path, age_minutes=30):
 if __name__ == '__main__':  # FIXED: Changed _name_ to __name__
     port = int(os.environ.get("PORT", 8000))
     app.run(host='0.0.0.0', port=port)
-
-
-def merge_pdfs(pdf_paths, output_path):
-    merger = PdfMerger()
-    total_pages = 0
-
-    for path in pdf_paths:
-        try:
-            reader = PdfReader(path)
-            pages = len(reader.pages)
-
-            if pages == 0:
-                print(f"[SKIP] {os.path.basename(path)} has 0 pages.")
-                os.remove(path)
-                continue
-
-            merger.append(path)
-            print(f"[MERGED] {os.path.basename(path)} with {pages} pages.")
-            total_pages += pages
-
-        except Exception as e:
-            print(f"[ERROR] Failed to merge {os.path.basename(path)}: {e}")
-            try:
-                os.remove(path)
-            except:
-                pass
-
-    if total_pages == 0:
-        raise Exception("All downloaded PDFs are invalid, corrupted, or protected.")
-
-    merger.write(output_path)
-    merger.close()
-    print(f"[INFO] Merged PDF created at {output_path} with {total_pages} pages.")
-
-    # ✅ ADD THIS DEBUG LINE
-    print(f"[DEBUG] Merged PDF actually saved at {output_path}")
